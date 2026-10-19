@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ideas and questions
+    url: https://github.com/BaQs/origami_energy/discussions
+    about: Share ideas and ask questions in Discussions.

@@ -1,0 +1,31 @@
+name: Bug report
+description: Something does not work as described.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting a bug. Ideas and questions are welcome in [Discussions](https://github.com/BaQs/origami_energy/discussions).
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Card configuration
+      render: yaml
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      placeholder: Origami Energy 0.5.0, Home Assistant 2026.10.0
+    validations:
+      required: true
+  - type: input
+    id: client
+    attributes:
+      label: Browser or app
+      placeholder: Companion app on iOS

@@ -1,0 +1,5 @@
+[
+  { "name": "hero", "fixture": "home" },
+  { "name": "details", "fixture": "details", "height": 1180 },
+  { "name": "electricity", "fixture": "details", "params": { "src": "elec", "per": "month" }, "height": 1000 }
+]

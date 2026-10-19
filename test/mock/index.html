@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="./theme.local.css" onerror="this.remove()">
+<style>
+  :root {
+    --primary-background-color: #fafafa;
+    --primary-text-color: #212121;
+    --secondary-text-color: #727272;
+    --card-background-color: #ffffff;
+    --ha-space-1: 4px; --ha-space-2: 8px; --ha-space-3: 12px; --ha-space-4: 16px; --ha-space-5: 20px; --ha-space-6: 24px;
+  }
+  html, body { margin: 0; background: var(--primary-background-color); color: var(--primary-text-color);
+    font-family: var(--primary-font-family, sans-serif); }
+  #page { display: flex; width: max-content; }
+  .cards { display: flex; flex-direction: column; gap: 16px; box-sizing: border-box; padding: 16px;
+    width: var(--page-width, 402px); background: var(--primary-background-color); color: var(--primary-text-color); }
+</style>
+</head>
+<body>
+<div id="page"></div>
+<script type="module">
+  const params = new URLSearchParams(location.search);
+  if (params.has("lang")) document.documentElement.lang = params.get("lang");
+  if (params.has("width")) document.documentElement.style.setProperty("--page-width", `${params.get("width")}px`);
+  await import("./mock-ha.js");
+  await import("/origami-energy.js");
+  const { show } = await import("./fixtures.js");
+  const themes = params.get("theme") === "both" ? ["light", "dark"] : [params.get("theme") ?? "light"];
+  window.ready = Promise.all(themes.map((theme) => {
+    const column = document.createElement("div");
+    column.className = "cards";
+    column.dataset.theme = theme;
+    document.querySelector("#page").append(column);
+    return show(params.get("fixture") ?? "default", params, column);
+  }));
+</script>
+</body>
+</html>

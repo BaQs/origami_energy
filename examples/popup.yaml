@@ -1,0 +1,16 @@
+type: vertical-stack
+cards:
+  - type: custom:bubble-card
+    card_type: pop-up
+    hash: "#energy"
+    name: Energy
+  - type: custom:origami-energy
+    layout: details
+    power: sensor.power
+    power_max: 9000
+    offpeak: binary_sensor.off_peak
+    temperature: sensor.outdoor_temperature
+    devices:
+      sensor.server_energy:
+        name: Home server
+        icon: mdi:server

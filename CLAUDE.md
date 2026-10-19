@@ -30,6 +30,7 @@ Applies to the README, comments, commit messages, issues and release notes.
 - Keep the README short. Everything beyond installation and the basics goes into `<details>` blocks.
 - README screenshots come from the mock with made-up data, in the Origami theme. No screenshots of a real home.
 - Examples use generic entity ids, never the ones of a real installation.
+- Commit with the repository owner's git identity, without Co-Authored-By or other AI trailers. The note on AI in the README covers that.
 
 ## Releases
 

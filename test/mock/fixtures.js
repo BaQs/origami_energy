@@ -101,6 +101,18 @@ export async function show(name, params, column) {
     await add("banner");
     return add("tiles");
   }
+  // The details card in a pop-up sheet like the Bubble Card pop-ups of the Origami dashboard
+  if (name === "popup") {
+    column.style.background = "color-mix(in srgb, var(--primary-background-color) 55%, #8a8780)";
+    column.style.paddingTop = "48px";
+    const sheet = document.createElement("div");
+    sheet.style.cssText = "background: var(--primary-background-color); border-radius: 32px 32px 0 0; padding: 22px 16px 24px;"
+      + "margin: 0 -16px -16px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12)";
+    sheet.innerHTML = `<div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 4px">
+      <span style="font-size: 28px; font-weight: 700">Energy</span><ha-icon icon="mdi:close" style="--mdc-icon-size: 26px; opacity: 0.6"></ha-icon></div>`;
+    column.append(sheet);
+    return mount("origami-energy", { ...BASE, layout: "details" }, hass, sheet);
+  }
   if (name === "details") {
     if (params.get("src") || params.get("per")) {
       window.__origamiEnergyView = { per: params.get("per") ?? "day", src: params.get("src"), at: Date.now() };

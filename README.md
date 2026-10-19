@@ -27,6 +27,8 @@ navigation_path: "#energy"
 
 The summary shows electricity, gas and water side by side, with today's cost and use. Tapping one opens `navigation_path`, for example a [Bubble Card](https://github.com/Clooos/Bubble-Card) pop-up with the details layout, which then opens on that energy.
 
+<img alt="The details layout in a pop-up, in light and dark mode" src="https://raw.githubusercontent.com/BaQs/origami_energy/main/images/popup.png">
+
 <details>
 <summary><b>Layouts</b></summary>
 
@@ -47,8 +49,6 @@ Each layout only shows the energies that the energy dashboard has.
 <summary><b>Details view</b></summary>
 
 <br>
-
-<img alt="The details view of a day, in light and dark mode" src="https://raw.githubusercontent.com/BaQs/origami_energy/main/images/details.png">
 
 The details view has an overview and one view per energy, and four periods. A day is compared with yesterday and with the average of the last 7 days. A week, a month and a year are compared with the same period last year, at the same point in time, and the card projects the end of the period from there. Last year's use is priced at today's rates, so the comparison shows a change in use and not a change in prices.
 

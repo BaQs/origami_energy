@@ -68,3 +68,14 @@ test("an error from Home Assistant shows on the card", async ({ page }) => {
   await open(page, "fixture=banner&error=Unauthorized");
   await expect(card(page, "banner")).toContainText("Error: Unauthorized");
 });
+
+test("the trend strip draws a calm line per energy", async ({ page }) => {
+  await open(page, "fixture=trend");
+  const trend = card(page, "trend");
+  await expect(trend.locator(".trleg span")).toHaveCount(3);
+  await expect(trend).toContainText("Electricity");
+  await expect(trend).toContainText("kWh");
+  await expect(trend.locator("svg.trendplot")).toHaveCount(1);
+  expect(await trend.locator("svg.trendplot .tr-elec polyline, svg.trendplot .tr-elec circle").count()).toBeGreaterThan(0);
+  expect(await trend.locator("svg.trendplot .tr-water polyline, svg.trendplot .tr-water circle").count()).toBeGreaterThan(0);
+});

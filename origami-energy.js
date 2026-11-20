@@ -10,7 +10,7 @@
  * temperature: sensor.outdoor_temperature    # details: temperature curve on the charts
  * navigation_path: "#energy"                 # summary, tiles, banner: opened on tap, on the energy that was tapped
  */
-const ORIGAMI_ENERGY_VERSION = "0.5.0";
+const ORIGAMI_ENERGY_VERSION = "0.6.0";
 const OE_DAY = 86400000;
 
 // Energy dashboard sources by type, with their statistic and price
@@ -180,7 +180,7 @@ class OrigamiEnergy extends OrigamiEnergyBase {
     return true;
   }
 
-  getCardSize() { return { banner: 1, summary: 1, tiles: 2 }[this._config?.layout] ?? 12; }
+  getCardSize() { return { banner: 1, summary: 1, trend: 2, tiles: 2 }[this._config?.layout] ?? 12; }
   getGridOptions() { return { columns: 12, rows: "auto", min_rows: 1 }; }
 
   set hass(hass) {
@@ -206,9 +206,10 @@ class OrigamiEnergy extends OrigamiEnergyBase {
     this._takeView();
     if (this._prefs) {
       const details = this._config.layout === "details";
+      const full = details || this._config.layout === "trend";
       const per = details ? this._view.per : "day";
       const c = this._cache[per];
-      if ((!c || Date.now() - c.at > 5 * 60 * 1000) && !this._loading?.[per]) this._load(per, !details);
+      if ((!c || Date.now() - c.at > 5 * 60 * 1000) && !this._loading?.[per]) this._load(per, !full);
     }
     this._render();
   }
@@ -343,6 +344,42 @@ class OrigamiEnergy extends OrigamiEnergyBase {
     return p.length ? Math.max(...p) : null;
   }
 
+  // Bande de tendances du jour sous les tuiles de l'accueil : 3 courbes calmes (élec/gaz/eau), chacune à sa propre échelle.
+  _trend(c) {
+    const t = this._t(), loc = this._loc();
+    const g = this._groups ?? { grid: [1], gas: [], water: [] };
+    const N = c ? this._sum(c.totN) : null;
+    const count = (c && c.r && c.r.count) || 24;
+    const bins = c && c.binsN ? this._bins(c.binsN, c.r.start, count, "day") : null;
+    const defs = [];
+    if (g.grid.length) defs.push(["elec", "e", t.elec, N ? fmtQty("elec", N.e, loc) : ""]);
+    if (g.gas.length) defs.push(["gas", "g", t.gas, N ? fmtQty("gas", N.g, loc) : ""]);
+    if (g.water.length) defs.push(["water", "w", t.water, N ? fmtQty("water", N.w, loc) : ""]);
+    const draw = (key) => {
+      if (!bins) return "";
+      const vals = bins.map((b) => (b ? Math.max(0, b[key] ?? 0) : null));
+      const max = Math.max(0, ...vals.filter((v) => v != null));
+      if (!(max > 0)) return "";
+      const y = (v) => (100 - (v / max) * 80 - 10).toFixed(1);
+      const segs = []; let cur = [];
+      vals.forEach((v, i) => { if (v == null) { if (cur.length) segs.push(cur); cur = []; } else cur.push(`${(i + 0.5).toFixed(2)},${y(v)}`); });
+      if (cur.length) segs.push(cur);
+      return segs.map((pp) => pp.length === 1
+        ? `<circle cx="${pp[0].split(",")[0]}" cy="${pp[0].split(",")[1]}" r="0.5"></circle>`
+        : `<polyline points="${pp.join(" ")}" vector-effect="non-scaling-stroke"></polyline>`).join("");
+    };
+    const ready = this._prefs && (bins || this._err);
+    const body = ready
+      ? `<svg class="trendplot" viewBox="0 0 ${count} 100" preserveAspectRatio="none" aria-hidden="true">${
+          defs.map(([cls, key]) => `<g class="tr-${cls}">${draw(key)}</g>`).join("")}</svg>`
+      : `<div class="trwait">…</div>`;
+    return `<ha-card class="trend" title="origami-energy v${ORIGAMI_ENERGY_VERSION}">
+      <div class="trleg">${defs.map(([cls, , label, qty]) =>
+        `<span class="tr-${cls}"><i></i>${oeEsc(label)}${qty ? ` <b class="num">${oeEsc(qty)}</b>` : ""}</span>`).join("")}</div>
+      ${body}
+    </ha-card>`;
+  }
+
   _render() {
     const root = this.shadowRoot;
     if (!root || !this._hass) return;
@@ -355,7 +392,7 @@ class OrigamiEnergy extends OrigamiEnergyBase {
     if (sig === this._sig) return;
     this._sig = sig;
     const html = cfg.layout === "details" ? this._details(c, pw, off) : cfg.layout === "tiles" ? this._tiles(c)
-      : cfg.layout === "summary" ? this._summary(c) : this._banner(c, pw, off);
+      : cfg.layout === "trend" ? this._trend(c) : cfg.layout === "summary" ? this._summary(c) : this._banner(c, pw, off);
     root.innerHTML = `<style>${ORIGAMI_ENERGY_CSS}</style>${html}`;
   }
 
@@ -801,6 +838,18 @@ const ORIGAMI_ENERGY_CSS = `
   .tmax, .tmin { position: absolute; right: -2px; font-size: 10px; font-weight: 700; color: var(--oe-temp); background: var(--oe-fill); padding: 0 3px; border-radius: 4px; }
   .tmax { top: 6px; } .tmin { bottom: 6px; }
   .tline { width: 16px; height: 0; border-top: 2.5px solid var(--oe-temp); display: inline-block; }
+  ha-card.trend { background: var(--oe-card); border-radius: var(--oe-r); box-shadow: var(--oe-shadow); padding: 14px 16px 12px; }
+  .trleg { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--oe-muted); }
+  .trleg span { display: flex; align-items: center; gap: 6px; }
+  .trleg i { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+  .trleg b { color: var(--oe-text); font-weight: 700; }
+  .trleg .tr-elec i { background: var(--oe-elec); } .trleg .tr-gas i { background: var(--oe-gas); } .trleg .tr-water i { background: var(--oe-water); }
+  svg.trendplot { width: 100%; height: 72px; display: block; }
+  svg.trendplot polyline { fill: none; stroke-width: 2.2px; stroke-linejoin: round; stroke-linecap: round; }
+  .trendplot .tr-elec polyline { stroke: var(--oe-elec); } .trendplot .tr-elec circle { fill: var(--oe-elec); }
+  .trendplot .tr-gas polyline { stroke: var(--oe-gas); } .trendplot .tr-gas circle { fill: var(--oe-gas); }
+  .trendplot .tr-water polyline { stroke: var(--oe-water); } .trendplot .tr-water circle { fill: var(--oe-water); }
+  .trwait { height: 72px; display: flex; align-items: center; justify-content: center; color: var(--oe-muted); font-size: 13px; }
   .tline.dash { border-top-style: dashed; opacity: 0.6; }
   .col { position: relative; flex: 1 1 0; min-width: 0; height: 140px; display: flex; flex-direction: column; justify-content: flex-end; }
   .col .top { border-radius: 4px 4px 0 0; }

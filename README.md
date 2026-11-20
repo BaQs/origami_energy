@@ -13,7 +13,7 @@ Download Origami Energy in HACS. If HACS asks you to add the repository, select 
 
 <br>
 
-Download `origami-energy.js` from the [latest release](https://github.com/BaQs/origami_energy/releases/latest) into `config/www/` and add `/local/origami-energy.js?v=0.5.0` as a JavaScript module in **Settings** > **Dashboards** > **Resources**. Change the version after each update, otherwise your browser keeps using the old file.
+Download `origami-energy.js` from the [latest release](https://github.com/BaQs/origami_energy/releases/latest) into `config/www/` and add `/local/origami-energy.js?v=0.6.0` as a JavaScript module in **Settings** > **Dashboards** > **Resources**. Change the version after each update, otherwise your browser keeps using the old file.
 
 </details>
 

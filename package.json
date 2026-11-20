@@ -1,6 +1,6 @@
 {
   "name": "origami-energy",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Energy cards for Home Assistant in the Origami style: today's cost, electricity, gas and water, with a details view",
   "license": "MIT",
   "private": true,
